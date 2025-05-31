@@ -12,11 +12,6 @@
 
 namespace usb2ttl {
 
-// 时间阈值常量
-static constexpr std::uint32_t CONNECTION_TIMEOUT = 5000;      // 连接检测超时 (毫秒)
-static constexpr std::uint32_t DUPLICATE_KEY_THRESHOLD = 5;  // 防重复按键阈值 (毫秒)
-                                                               // 优化为5ms以过滤USB2TTL重复发送
-
 TTLKeyboard::TTLKeyboard() 
     : uart_instance_(nullptr)
     , key_callback_(nullptr)

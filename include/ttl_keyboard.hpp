@@ -117,12 +117,12 @@ private:
     // - USB2TTL模块经常在100-150ms内重复发送相同按键
     // - 真实的快速打字间隔通常>150ms (即使是专业打字员)
     // - 机械键盘抖动通常<50ms
-    // 设置为150ms可以：
-    // 1. 有效过滤USB2TTL模块的重复发送 (100-150ms)
-    // 2. 仍然支持快速打字 (>150ms间隔)
+    // 设置为200ms可以：
+    // 1. 有效过滤USB2TTL模块的重复发送 (100-200ms)
+    // 2. 仍然支持快速打字 (>200ms间隔)
     // 3. 过滤机械键盘的按键抖动 (<50ms)
     // 4. 避免误过滤真实的快速连击
-    static constexpr std::uint32_t DUPLICATE_KEY_THRESHOLD = 150;
+    static constexpr std::uint32_t DUPLICATE_KEY_THRESHOLD = 200;
 };
 
 } // namespace usb2ttl 
