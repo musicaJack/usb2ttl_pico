@@ -1,9 +1,16 @@
 # USB2TTL Pico 键盘系统
+![许可证](https://img.shields.io/badge/许可证-MIT-blue.svg)
+![平台](https://img.shields.io/badge/平台-Raspberry%20Pi%20Pico-brightgreen.svg)
+![版本](https://img.shields.io/badge/版本-1.0.0-orange.svg)
+[English](README.md) | 中文
 
 ## 项目概述
 
 这是一个基于树莓派Pico的TTL键盘输入系统，通过USB2TTL模块接收键盘输入，并在ILI9488 3.5英寸TFT显示屏上提供文本编辑功能。
 
+<p align="center">
+  <img src="imgs/img_of_material.jpg" alt="affect1" width="300"/>
+</p>
 ### 核心特性
 - **纯串口通信**: 完全基于UART通信，与USB协议无关
 - **双模式界面**: 命令模式和文本编辑模式
