@@ -1,33 +1,39 @@
 # USB2TTL Pico Keyboard System
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Raspberry%20Pi%20Pico-brightgreen.svg)
-![Version](https://img.shields.io/badge/version-1.0.0-orange.svg)
+![Version](https://img.shields.io/badge/version-2.1.0-orange.svg)
 English | [中文](README.zh.md)
 
 ## Project Overview
 
-This is a TTL keyboard input system based on Raspberry Pi Pico that receives keyboard input through a USB2TTL module and provides text editing functionality on an ILI9488 3.5-inch TFT display.
+This is a TTL keyboard input system based on Raspberry Pi Pico that receives keyboard input through a USB2TTL module and provides text editing functionality on display screens. The system now supports both ILI9488 TFT and ST7306 reflective LCD displays.
+
 <p align="center">
   <img src="imgs/img_of_material.jpg" alt="affect1" width="300"/>
 </p>
+
 ### Core Features
 - **Pure Serial Communication**: Completely based on UART communication, independent of USB protocol
+- **Dual Display Support**: Compatible with ILI9488 TFT and ST7306 reflective LCD
 - **Dual-Mode Interface**: Command mode and text editing mode
 - **Smart Key Filtering**: 200ms duplicate key filtering, effectively handles USB2TTL module repeat transmissions
 - **Modern C++**: Uses C++17 features with complete object-oriented design
-- **RGB666 Display**: Native support for ILI9488's RGB666 color system
+- **Adaptive Color System**: RGB666 for ILI9488, 4-level grayscale for ST7306
 
 ### Version Information
 - **Version**: 2.1.0
-- **Hardware**: Raspberry Pi Pico + ILI9488 + USB2TTL Module
+- **Hardware**: Raspberry Pi Pico + Display + USB2TTL Module
+- **Supported Displays**: 
+  - ILI9488 3.5" TFT (320x480, RGB666)
+  - ST7306 4.2" Reflective LCD (300x400, 4-level grayscale)
 - **Development Language**: C++17
-- **Memory Usage**: FLASH 782KB (17.8%), RAM 15KB (5.8%)
+- **Memory Usage**: FLASH 783KB (17.9%), RAM 15KB (5.8%)
 
 ## Hardware Connections
 
 ### Signal Flow
 ```
-Keyboard → USB2TTL Module → UART1 Serial → Raspberry Pi Pico → ILI9488 Display
+Keyboard → USB2TTL Module → UART1 Serial → Raspberry Pi Pico → Display
          (USB to Serial)   (GPIO 8/9)                        (SPI Interface)
 ```
 
@@ -58,6 +64,24 @@ VCC               →    3.3V
 GND               →    GND
 ```
 
+### ST7306 Display Connection (SPI0)
+```
+ST7306 Pin        →    Raspberry Pi Pico Pin
+CS                →    GPIO 17
+DC                →    GPIO 20
+RST               →    GPIO 15
+SCK               →    GPIO 18
+MOSI              →    GPIO 19
+VCC               →    3.3V
+GND               →    GND
+```
+
+**ST7306 Features**:
+- **Resolution**: 300x400 pixels
+- **Display Type**: Reflective LCD (no backlight needed)
+- **Color Depth**: 4-level grayscale (2-bit per pixel)
+- **Power Consumption**: Ultra-low power with sleep mode support
+
 ### Debug Output (Optional)
 ```
 GPIO 0 (TX)       →    USB2TTL Module (115200 baud rate)
@@ -78,17 +102,14 @@ GPIO 0 (TX)       →    USB2TTL Module (115200 baud rate)
 #### 2. TextEditor (`include/text_editor.hpp`)
 - **Function**: Text editing and display management
 - **Features**:
-  - 38 characters/line, 80 lines capacity (3040 characters total)
+  - Adaptive layout for different screen sizes
   - Smart auto-wrap
   - Partial refresh to reduce flicker
   - Input freeze protection
 
-#### 3. ILI9488DisplayAdapter (`examples/usb2ttl_demo.cpp`)
-- **Function**: Display driver adapter
-- **Features**:
-  - RGB666 native color support
-  - Optimized graphics rendering
-  - Smart color conversion
+#### 3. Display Adapters
+- **ILI9488DisplayAdapter**: RGB666 color support, backlight control
+- **ST7306DisplayAdapter**: 4-level grayscale, power mode control
 
 ### Application State Management
 - **COMMAND_MODE**: Keyboard command interface
@@ -153,9 +174,10 @@ make -j4
 ```
 
 ### Output Files
-- `usb2ttl_demo.uf2` (782KB) - Main program
-- `debug_uart.uf2` (68KB) - UART debug tool
-- `test_uart.uf2` (66KB) - UART test program
+- `usb2ttl_demo.uf2` (785KB) - ILI9488 main program
+- `usb2ttl_demo_st7306.uf2` (783KB) - ST7306 main program
+- `st7306_test.uf2` (734KB) - ST7306 display test program
+- `debug_uart.uf2` (78KB) - UART debug tool
 
 ## Technical Features
 
@@ -171,17 +193,39 @@ make -j4
 - **Connection Detection**: 5-second timeout mechanism based on valid data
 - **Supported Keys**: ASCII characters, control keys, function keys
 
-### Display System
+### Display Systems
+
+#### ILI9488 TFT Display
 - **Color Format**: RGB666 (18-bit, 262,144 colors)
 - **Resolution**: 320x480 pixels
-- **Font**: 8x16 pixel bitmap font
-- **Refresh Strategy**: Partial refresh optimization
+- **Features**: Backlight control, high color accuracy
+- **Text Layout**: 40 characters/line, 30 lines
+
+#### ST7306 Reflective LCD
+- **Color Format**: 4-level grayscale (2-bit per pixel)
+- **Resolution**: 300x400 pixels
+- **Features**: No backlight needed, ultra-low power consumption
+- **Text Layout**: 37 characters/line, 25 lines
+- **Power Modes**: High performance / Low power modes
 
 ### Memory Optimization
-- **FLASH Usage**: 782KB / 2MB (38.2%)
+- **FLASH Usage**: 783KB / 2MB (38.3%)
 - **RAM Usage**: 15KB / 264KB (5.8%)
 - **Buffer Management**: Smart buffer reuse
-- **Color Conversion**: Zero-copy optimization
+- **Color Conversion**: Optimized grayscale mapping for ST7306
+
+## Display-Specific Features
+
+### ST7306 Advantages
+- **Power Efficiency**: Reflective display requires no backlight
+- **Sunlight Readable**: Excellent visibility in bright environments
+- **Low Power Consumption**: Sleep mode support for battery applications
+- **Eye Comfort**: No blue light emission, suitable for long-term reading
+
+### ILI9488 Advantages
+- **Rich Colors**: Full RGB666 color support
+- **High Brightness**: Adjustable backlight for various lighting conditions
+- **Fast Refresh**: Optimized for dynamic content display
 
 ## Troubleshooting
 
@@ -195,19 +239,20 @@ make -j4
 3. Verify TX/RX cross-connection
 4. Check keyboard to USB2TTL connection
 
-#### 2. Duplicate Character Input
-**Symptoms**: Pressing one key produces multiple identical characters
+#### 2. ST7306 Display Issues
+**Symptoms**: Blank screen or incorrect display
 **Solutions**:
-- Resolved through 200ms duplicate key filtering
-- If issues persist, adjust `DUPLICATE_KEY_THRESHOLD` value
+1. Verify SPI connections (no backlight pin needed)
+2. Check power supply stability
+3. Ensure correct firmware (`usb2ttl_demo_st7306.uf2`)
+4. Test with `st7306_test.uf2` for hardware verification
 
-#### 3. Display Not Working
-**Symptoms**: Black screen or corrupted display
+#### 3. Text Layout Issues
+**Symptoms**: Text appears cut off or misaligned
 **Solutions**:
-1. Check SPI connection wires
-2. Ensure stable power supply
-3. Check backlight connection (GPIO 10)
-4. Verify ILI9488 model compatibility
+- Use correct firmware for your display type
+- ST7306: 37 chars/line, 25 lines
+- ILI9488: 40 chars/line, 30 lines
 
 #### 4. Compilation Errors
 **Common errors and solutions**:
@@ -281,6 +326,9 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) file for 
 ## Changelog
 
 ### v2.1.0 (Current Version)
+- ✅ Added ST7306 reflective LCD support
+- ✅ Implemented adaptive layout for different screen sizes
+- ✅ Added ST7306 test program with 7 comprehensive tests
 - ✅ Optimized duplicate key filtering to 200ms threshold
 - ✅ Fixed text editor content retention issue
 - ✅ Corrected row-column coordinate system parameter order

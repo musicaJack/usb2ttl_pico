@@ -330,43 +330,43 @@ void show_command_screen() {
         gfx->drawRectangle(5, 5, g_display->get_width() - 10, g_display->get_height() - 10, true);
     }
     
-    // 标题
-    g_display->draw_text("KEYBOARD COMMANDS", 70, 15, 0x3F3F3F, 0x000000);
-    g_display->draw_text("=================", 70, 35, 0x3F3F3F, 0x000000);
+    // 标题 - 调整位置适应300像素宽度
+    g_display->draw_text("KEYBOARD COMMANDS", 50, 15, 0x3F3F3F, 0x000000);  // 从70改为50
+    g_display->draw_text("=================", 50, 35, 0x3F3F3F, 0x000000);  // 从70改为50
     
-    // 命令列表
+    // 命令列表 - 缩短描述文本以适应屏幕宽度
     const struct {
         const char* key;
         const char* desc;
     } commands[] = {
         {"Enter", "Enter text edit mode"},
-        {"ESC", "Clear screen & reset"},
-        {"F10", "Save current text"},
-        {"Backspace", "Delete character"},
-        {"Tab", "Insert 4 spaces"}
+        {"ESC", "Clear & reset"},           // 缩短描述
+        {"F10", "Save text"},               // 缩短描述
+        {"Backspace", "Delete char"},       // 缩短描述
+        {"Tab", "Insert spaces"}            // 缩短描述
     };
     
     int y_pos = 70;
     for (size_t i = 0; i < sizeof(commands) / sizeof(commands[0]); ++i) {
-        g_display->draw_text(commands[i].key, 20, y_pos, 0x3F3F3F, 0x000000);
-        g_display->draw_text("-", 120, y_pos, 0x3F3F3F, 0x000000);
-        g_display->draw_text(commands[i].desc, 140, y_pos, 0x3F3F3F, 0x000000);
+        g_display->draw_text(commands[i].key, 15, y_pos, 0x3F3F3F, 0x000000);      // 从20改为15
+        g_display->draw_text("-", 100, y_pos, 0x3F3F3F, 0x000000);                 // 从120改为100
+        g_display->draw_text(commands[i].desc, 115, y_pos, 0x3F3F3F, 0x000000);    // 从140改为115
         y_pos += 25;
     }
     
-    // 状态信息区域
+    // 状态信息区域 - 调整大小适应400像素高度
     if (gfx) {
-        gfx->drawRectangle(10, 220, g_display->get_width() - 20, 120, true);
+        gfx->drawRectangle(10, 200, g_display->get_width() - 20, 100, true);  // 从220改为200，从120改为100
     }
     
-    g_display->draw_text("System Status:", 20, 230, 0x3F3F3F, 0x000000);
-    g_display->draw_text("TTL UART: Ready", 20, 250, 0x3F3F3F, 0x000000);
-    g_display->draw_text("Display: ST7306 Reflective", 20, 270, 0x3F3F3F, 0x000000);
-    g_display->draw_text("Text Editor: Ready", 20, 290, 0x3F3F3F, 0x000000);
+    g_display->draw_text("System Status:", 20, 210, 0x3F3F3F, 0x000000);           // 从230改为210
+    g_display->draw_text("TTL UART: Ready", 20, 230, 0x3F3F3F, 0x000000);          // 从250改为230
+    g_display->draw_text("Display: ST7306", 20, 250, 0x3F3F3F, 0x000000);          // 从270改为250，缩短文本
+    g_display->draw_text("Text Editor: Ready", 20, 270, 0x3F3F3F, 0x000000);       // 从290改为270
     
-    // 使用说明
-    g_display->draw_text("Connect keyboard via USB2TTL", 30, 350, 0x3F3F3F, 0x000000);
-    g_display->draw_text("Press ENTER to start editing", 40, 370, 0x3F3F3F, 0x000000);
+    // 使用说明 - 调整位置和缩短文本
+    g_display->draw_text("Connect keyboard via USB2TTL", 15, 320, 0x3F3F3F, 0x000000);  // 从30,350改为15,320
+    g_display->draw_text("Press ENTER to start edit", 20, 340, 0x3F3F3F, 0x000000);     // 从40,370改为20,340，缩短文本
     
     g_app_state = AppState::COMMAND_MODE;
 }
@@ -379,7 +379,7 @@ void show_edit_mode() {
     
     // 标题栏
     g_display->fill_rect(0, 0, g_display->get_width(), 25, 0x3F3F3F);
-    g_display->draw_text("TEXT EDITOR - Press ESC to exit", 10, 5, 0x000000, 0x3F3F3F);
+    g_display->draw_text("TEXT EDITOR - Press ESC", 10, 5, 0x000000, 0x3F3F3F);  // 缩短标题文本
     
     // 清空编辑器内容并刷新显示
     if (g_text_editor) {
@@ -473,13 +473,13 @@ void update_status_display() {
     // 只在连接状态变化时更新连接状态显示
     if (current_keyboard_connected != last_keyboard_connected) {
         // 清除连接状态区域
-        g_display->fill_rect(10, status_y, 150, 15, 0x000000);
+        g_display->fill_rect(5, status_y, 130, 15, 0x000000);  // 调整位置和宽度
         
         if (current_keyboard_connected) {
-            g_display->draw_text("TTL-KB: Connected", 10, status_y, 0x3F3F3F, 0x000000);
+            g_display->draw_text("TTL-KB: Connected", 5, status_y, 0x3F3F3F, 0x000000);  // 从10改为5
             g_keyboard_connected = true;
         } else {
-            g_display->draw_text("TTL-KB: Waiting...", 10, status_y, 0x3F3F3F, 0x000000);
+            g_display->draw_text("TTL-KB: Waiting...", 5, status_y, 0x3F3F3F, 0x000000);  // 从10改为5
             g_keyboard_connected = false;
         }
         last_keyboard_connected = current_keyboard_connected;
@@ -488,21 +488,21 @@ void update_status_display() {
     // 只在模式变化时更新模式显示
     if (g_app_state != last_app_state) {
         // 清除模式显示区域
-        g_display->fill_rect(200, status_y, 60, 15, 0x000000);
+        g_display->fill_rect(150, status_y, 60, 15, 0x000000);  // 从200改为150
         
         const char* mode_text = (g_app_state == AppState::COMMAND_MODE) ? "COMMAND" : "EDIT";
-        g_display->draw_text(mode_text, 200, status_y, 0x3F3F3F, 0x000000);
+        g_display->draw_text(mode_text, 150, status_y, 0x3F3F3F, 0x000000);  // 从200改为150
         last_app_state = g_app_state;
     }
     
     // 只在运行时间变化时更新时间显示
     if (current_uptime_sec != last_uptime_sec) {
         // 清除时间显示区域
-        g_display->fill_rect(270, status_y, 30, 15, 0x000000);
+        g_display->fill_rect(230, status_y, 65, 15, 0x000000);  // 从270改为230，增加宽度
         
         char uptime_str[32];
         snprintf(uptime_str, sizeof(uptime_str), "%lus", current_uptime_sec);
-        g_display->draw_text(uptime_str, 270, status_y, 0x3F3F3F, 0x000000);
+        g_display->draw_text(uptime_str, 230, status_y, 0x3F3F3F, 0x000000);  // 从270改为230
         last_uptime_sec = current_uptime_sec;
     }
     
@@ -515,11 +515,11 @@ void update_status_display() {
         // 只在光标位置变化时更新
         if (current_cursor_pos != last_cursor_pos) {
             // 清除光标位置显示区域
-            g_display->fill_rect(10, status_y + 15, 120, 15, 0x000000);
+            g_display->fill_rect(5, status_y + 15, 100, 15, 0x000000);  // 从10改为5，减少宽度
             
             char cursor_str[32];
             snprintf(cursor_str, sizeof(cursor_str), "L:%d C:%d", current_cursor_pos.first + 1, current_cursor_pos.second + 1);
-            g_display->draw_text(cursor_str, 10, status_y + 15, 0x3F3F3F, 0x000000);
+            g_display->draw_text(cursor_str, 5, status_y + 15, 0x3F3F3F, 0x000000);  // 从10改为5
             last_cursor_pos = current_cursor_pos;
         }
         
@@ -527,13 +527,13 @@ void update_status_display() {
         static bool last_input_frozen = false;
         if (current_input_frozen != last_input_frozen) {
             // 清除状态信息区域
-            g_display->fill_rect(150, status_y + 15, 120, 15, 0x000000);
+            g_display->fill_rect(110, status_y + 15, 100, 15, 0x000000);  // 从150改为110，减少宽度
             
             if (current_input_frozen) {
-                g_display->draw_text("INPUT FROZEN!", 150, status_y + 15, 0x3F3F3F, 0x000000);
+                g_display->draw_text("INPUT FROZEN!", 110, status_y + 15, 0x3F3F3F, 0x000000);  // 从150改为110
             } else {
                 std::string status_info = g_text_editor->get_status_info();
-                g_display->draw_text(status_info, 150, status_y + 15, 0x3F3F3F, 0x000000);
+                g_display->draw_text(status_info, 110, status_y + 15, 0x3F3F3F, 0x000000);  // 从150改为110
             }
             last_input_frozen = current_input_frozen;
         }
@@ -541,19 +541,19 @@ void update_status_display() {
         // 只在修改状态变化时更新
         if (current_unsaved_changes != last_unsaved_changes) {
             // 在右侧显示修改状态
-            g_display->fill_rect(270, status_y + 15, 30, 15, 0x000000);
+            g_display->fill_rect(220, status_y + 15, 75, 15, 0x000000);  // 从270改为220，增加宽度
             
             if (current_unsaved_changes) {
-                g_display->draw_text("*MOD*", 270, status_y + 15, 0x3F3F3F, 0x000000);
+                g_display->draw_text("*MOD*", 220, status_y + 15, 0x3F3F3F, 0x000000);  // 从270改为220
             } else {
-                g_display->draw_text("SAVED", 270, status_y + 15, 0x3F3F3F, 0x000000);
+                g_display->draw_text("SAVED", 220, status_y + 15, 0x3F3F3F, 0x000000);  // 从270改为220
             }
             last_unsaved_changes = current_unsaved_changes;
         }
     } else {
         // 如果不在编辑模式，清除编辑模式相关显示
         if (last_cursor_pos.first != -1) {
-            g_display->fill_rect(10, status_y + 15, 290, 15, 0x000000);
+            g_display->fill_rect(5, status_y + 15, 290, 15, 0x000000);  // 从10改为5
             last_cursor_pos = {-1, -1};
             last_unsaved_changes = false;
         }
