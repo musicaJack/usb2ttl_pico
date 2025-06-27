@@ -36,32 +36,12 @@
 #include "pico_ili9488_gfx.hpp"
 #include "ili9488_colors.hpp"
 #include "ili9488_font.hpp"
+#include "pin_config.hpp"
 
 using namespace ili9488;
 using namespace ili9488_colors;
 using namespace usb2ttl;  // 使用项目命名空间
-
-// 硬件配置
-namespace HardwareConfig {
-    // ILI9488 SPI配置
-    spi_inst_t* const SPI_INSTANCE = spi0;
-    constexpr std::uint8_t PIN_DC   = 20;
-    constexpr std::uint8_t PIN_RST  = 15;
-    constexpr std::uint8_t PIN_CS   = 17;
-    constexpr std::uint8_t PIN_SCK  = 18;
-    constexpr std::uint8_t PIN_MOSI = 19;
-    constexpr std::uint8_t PIN_BL   = 10;
-    constexpr std::uint32_t SPI_SPEED = 40000000; // 40MHz
-    
-    // TTL键盘UART配置
-    uart_inst_t* const UART_INSTANCE = uart1;
-    constexpr std::uint8_t PIN_TX = 8;
-    constexpr std::uint8_t PIN_RX = 9;
-    constexpr std::uint32_t UART_BAUD = 115200;
-    
-    // 状态LED
-    constexpr std::uint8_t PIN_LED = PICO_DEFAULT_LED_PIN;
-}
+using HardwareConfig = pin_config::ILI9488Config;  // 使用统一配置
 
 // 应用程序状态
 enum class AppState {
@@ -78,21 +58,21 @@ private:
 public:
     ILI9488DisplayAdapter() {
         ili9488_driver_ = std::make_unique<ILI9488Driver>(
-            HardwareConfig::SPI_INSTANCE,
-            HardwareConfig::PIN_DC,
-            HardwareConfig::PIN_RST,
-            HardwareConfig::PIN_CS,
-            HardwareConfig::PIN_SCK,
-            HardwareConfig::PIN_MOSI,
-            HardwareConfig::PIN_BL
+            HardwareConfig::spi_instance(),
+            HardwareConfig::pin_dc,
+            HardwareConfig::pin_rst,
+            HardwareConfig::pin_cs,
+            HardwareConfig::pin_sck,
+            HardwareConfig::pin_mosi,
+            HardwareConfig::pin_bl
         );
         
         gfx_ = std::make_unique<pico_ili9488_gfx::PicoILI9488GFX<ILI9488Driver>>(
-            *ili9488_driver_, 320, 480
+            *ili9488_driver_, HardwareConfig::width, HardwareConfig::height
         );
         
-        width_ = 320;
-        height_ = 480;
+        width_ = HardwareConfig::width;
+        height_ = HardwareConfig::height;
         font_width_ = font::FONT_WIDTH;
         font_height_ = font::FONT_HEIGHT;
         text_offset_x_ = 5;
@@ -199,8 +179,8 @@ int main() {
     
     printf("\n=== TTL Keyboard Demo Starting ===\n");
     printf("Version: 2.0.0\n");
-    printf("Hardware: Raspberry Pi Pico + ILI9488 + TTL Keyboard via UART1\n");
-    printf("UART Config: GPIO 8 (TX), GPIO 9 (RX), 9600 baud\n");
+    printf("Hardware: Raspberry Pi Pico + ILI9488 + TTL Keyboard via UART0\n");
+    printf("UART Config: GPIO 0 (TX), GPIO 1 (RX), 115200 baud\n");
     printf("Note: No USB HID protocol - pure UART communication\n\n");
     
     // 初始化硬件组件
@@ -241,9 +221,9 @@ int main() {
  * @brief 初始化硬件
  */
 void init_hardware() {
-    gpio_init(HardwareConfig::PIN_LED);
-    gpio_set_dir(HardwareConfig::PIN_LED, GPIO_OUT);
-    gpio_put(HardwareConfig::PIN_LED, 1);
+    gpio_init(HardwareConfig::pin_led);
+    gpio_set_dir(HardwareConfig::pin_led, GPIO_OUT);
+    gpio_put(HardwareConfig::pin_led, 1);
     printf("Hardware initialized\n");
 }
 
@@ -258,9 +238,9 @@ void init_display() {
     if (!g_display->initialize()) {
         printf("Failed to initialize display!\n");
         while (1) {
-            gpio_put(HardwareConfig::PIN_LED, 1);
+            gpio_put(HardwareConfig::pin_led, 1);
             sleep_ms(100);
-            gpio_put(HardwareConfig::PIN_LED, 0);
+            gpio_put(HardwareConfig::pin_led, 0);
             sleep_ms(100);
         }
     }
@@ -276,10 +256,10 @@ void init_keyboard() {
     
     g_keyboard = std::make_unique<TTLKeyboard>();
     
-    if (!g_keyboard->initialize(HardwareConfig::UART_INSTANCE, 
-                               HardwareConfig::UART_BAUD,
-                               HardwareConfig::PIN_TX, 
-                               HardwareConfig::PIN_RX)) {
+    if (!g_keyboard->initialize(HardwareConfig::uart_instance(), 
+                               HardwareConfig::uart_baud,
+                               HardwareConfig::uart_tx, 
+                               HardwareConfig::uart_rx)) {
         printf("Failed to initialize TTL keyboard!\n");
         g_display->draw_text("TTL Keyboard Init Failed!", 10, 50, rgb666::RED, rgb666::BLACK);
         return;

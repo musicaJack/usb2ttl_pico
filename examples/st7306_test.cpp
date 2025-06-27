@@ -23,21 +23,10 @@
 #include "pico_display_gfx.hpp"
 #include "st73xx_font.hpp"
 #include "gfx_colors.hpp"
+#include "pin_config.hpp"
 
 using namespace st7306;
-
-// 硬件配置
-namespace HardwareConfig {
-    // ST7306 SPI配置
-    constexpr std::uint8_t PIN_DC   = 20;
-    constexpr std::uint8_t PIN_RST  = 15;
-    constexpr std::uint8_t PIN_CS   = 17;
-    constexpr std::uint8_t PIN_SCLK = 18;
-    constexpr std::uint8_t PIN_SDIN = 19;
-    
-    // 状态LED
-    constexpr std::uint8_t PIN_LED = PICO_DEFAULT_LED_PIN;
-}
+using HardwareConfig = pin_config::ST7306Config;  // 使用统一配置
 
 int main() {
     // 初始化标准库
@@ -48,22 +37,22 @@ int main() {
     printf("Resolution: 300x400 pixels, 4-level grayscale\n\n");
     
     // 初始化LED
-    gpio_init(HardwareConfig::PIN_LED);
-    gpio_set_dir(HardwareConfig::PIN_LED, GPIO_OUT);
-    gpio_put(HardwareConfig::PIN_LED, 1);
+    gpio_init(HardwareConfig::pin_led);
+    gpio_set_dir(HardwareConfig::pin_led, GPIO_OUT);
+    gpio_put(HardwareConfig::pin_led, 1);
     
     // 创建ST7306驱动实例
     ST7306Driver display(
-        HardwareConfig::PIN_DC,
-        HardwareConfig::PIN_RST,
-        HardwareConfig::PIN_CS,
-        HardwareConfig::PIN_SCLK,
-        HardwareConfig::PIN_SDIN
+        HardwareConfig::pin_dc,
+        HardwareConfig::pin_rst,
+        HardwareConfig::pin_cs,
+        HardwareConfig::pin_sclk,
+        HardwareConfig::pin_sdin
     );
     
     // 创建图形库实例
     pico_gfx::PicoDisplayGFX<ST7306Driver> gfx(
-        display, ST7306Driver::LCD_WIDTH, ST7306Driver::LCD_HEIGHT
+        display, HardwareConfig::width, HardwareConfig::height
     );
     
     printf("Initializing ST7306 display...\n");
@@ -203,9 +192,9 @@ int main() {
     
     // 闪烁LED表示测试完成
     for (int i = 0; i < 10; i++) {
-        gpio_put(HardwareConfig::PIN_LED, 1);
+        gpio_put(HardwareConfig::pin_led, 1);
         sleep_ms(200);
-        gpio_put(HardwareConfig::PIN_LED, 0);
+        gpio_put(HardwareConfig::pin_led, 0);
         sleep_ms(200);
     }
     

@@ -77,9 +77,9 @@ pico_add_extra_outputs(usb2ttl_demo)
 # 添加编译定义
 target_compile_definitions(usb2ttl_demo PRIVATE
     # TTL键盘UART配置
-    PICO_DEFAULT_UART=1
-    PICO_DEFAULT_UART_TX_PIN=8
-    PICO_DEFAULT_UART_RX_PIN=9
+    PICO_DEFAULT_UART=0
+    PICO_DEFAULT_UART_TX_PIN=0
+    PICO_DEFAULT_UART_RX_PIN=1
     TTL_KEYBOARD_BAUD=115200
     # ILI9488相关定义
     ILI9488_SPI_SPEED=40000000
@@ -120,9 +120,9 @@ pico_add_extra_outputs(usb2ttl_demo_st7306)
 # 添加编译定义
 target_compile_definitions(usb2ttl_demo_st7306 PRIVATE
     # TTL键盘UART配置
-    PICO_DEFAULT_UART=1
-    PICO_DEFAULT_UART_TX_PIN=8
-    PICO_DEFAULT_UART_RX_PIN=9
+    PICO_DEFAULT_UART=0
+    PICO_DEFAULT_UART_TX_PIN=0
+    PICO_DEFAULT_UART_RX_PIN=1
     TTL_KEYBOARD_BAUD=115200
     # ST7306相关定义
     ST7306_WIDTH=300
@@ -162,21 +162,3 @@ target_compile_definitions(st7306_test PRIVATE
     ST7306_HEIGHT=400
 )
 
-# 添加调试UART程序
-add_executable(debug_uart
-    examples/debug_uart.cpp
-)
-
-# 链接必要的库
-target_link_libraries(debug_uart
-    pico_stdlib
-    hardware_uart
-    hardware_gpio
-)
-
-# 启用USB输出用于调试
-pico_enable_stdio_usb(debug_uart 1)
-pico_enable_stdio_uart(debug_uart 0)
-
-# 生成UF2文件
-pico_add_extra_outputs(debug_uart) 

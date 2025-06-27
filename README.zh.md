@@ -37,13 +37,13 @@
      (USB转串口)    (GPIO 8/9)              (SPI接口)
 ```
 
-### TTL键盘连接 (UART1)
+### TTL键盘连接 (UART0)
 ```
-USB2TTL模块    →    树莓派Pico
-TX             →    GPIO 9 (RX)
-RX             →    GPIO 8 (TX)  
+USB2TTL模块    →    树莓派Pico引脚
+TX             →    GPIO 1 (RX)
+RX             →    GPIO 0 (TX)  
 GND            →    GND
-VCC            →    3.3V (可选)
+VCC            →    3.3V~5.0V
 ```
 
 **重要说明**:
@@ -51,29 +51,34 @@ VCC            →    3.3V (可选)
 - 数据位: 8位，停止位: 1位，无校验
 - TX/RX交叉连接确保正确通信
 
-### ILI9488显示屏连接 (SPI0)
+### 统一SPI显示接口连接 (SPI0)
 ```
-ILI9488引脚    →    树莓派Pico引脚
-CS             →    GPIO 17
-DC             →    GPIO 20
-RST            →    GPIO 15
-SCK            →    GPIO 18
-MOSI           →    GPIO 19
-BL             →    GPIO 10 (背光)
-VCC            →    3.3V
-GND            →    GND
+显示屏引脚     →    树莓派Pico引脚    →    功能说明
+CS             →    GPIO 17          →    片选信号
+DC             →    GPIO 20          →    数据/命令选择
+RST            →    GPIO 15          →    重置信号
+SCL/SCK        →    GPIO 18          →    时钟线
+SDA/MOSI       →    GPIO 19          →    数据线
+BL             →    GPIO 16          →    背光控制 (仅ILI9488)
+TE             →    GPIO 21          →    撕裂效应信号 (仅st73xx系列，保留)
+VCC            →    3.3V             →    电源正极
+GND            →    GND              →    电源负极
 ```
 
-### ST7306显示屏连接 (SPI0)
+### ILI9488显示屏特性
 ```
-ST7306引脚     →    树莓派Pico引脚
-CS             →    GPIO 17
-DC             →    GPIO 20
-RST            →    GPIO 15
-SCK            →    GPIO 18
-MOSI           →    GPIO 19
-VCC            →    3.3V
-GND            →    GND
+- 分辨率: 320x480像素
+- 颜色: RGB666 (262,144色)
+- 背光控制: GPIO16 (PWM调节)
+- 功耗: 中等 (需要背光)
+```
+
+### ST7306显示屏特性
+```
+- 分辨率: 300x400像素  
+- 颜色: 4级灰度
+- 背光控制: 无需背光 (反射式LCD)
+- 功耗: 超低功耗
 ```
 
 **ST7306特性**:
@@ -92,7 +97,7 @@ GPIO 0 (TX)    →    USB2TTL模块 (115200波特率)
 ### 核心类设计
 
 #### 1. TTLKeyboard (`include/ttl_keyboard.hpp`)
-- **功能**: 处理UART1串口通信和按键解析
+- **功能**: 处理UART0串口通信和按键解析
 - **特性**: 
   - 智能重复按键过滤 (200ms阈值)
   - 噪声数据过滤 (0xFF/0x00字节)
@@ -182,8 +187,8 @@ make -j4
 ## 技术特性
 
 ### 通信协议
-- **UART实例**: UART1
-- **GPIO配置**: TX=8, RX=9
+- **UART实例**: UART0 (固定硬件配置)
+- **GPIO配置**: TX=0, RX=1
 - **波特率**: 115200 bps
 - **数据格式**: 8N1 (8数据位，无校验，1停止位)
 
